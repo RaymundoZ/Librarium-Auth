@@ -17,7 +17,7 @@ jobs:
           java-version: 21.0.3
           distribution: liberica
       - name: Set up Gradle
-        uses: actions/setup-gradle@v3.3.2
+        uses: gradle/actions/setup-gradle@v3.3.2
       - name: Build package
         run: ./gradlew clean build --exclude-task test --exclude-task jar
       - name: Upload jar
