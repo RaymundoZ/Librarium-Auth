@@ -50,4 +50,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ github.actor }}/librarium-auth:latest
+          tags: ghcr.io/raymundoz/librarium-auth:latest
