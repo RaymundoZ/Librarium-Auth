@@ -1,1 +1,1 @@
-rootProject.name = "librarium-auth"
+rootProject.name = "auth"
