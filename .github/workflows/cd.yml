@@ -1,5 +1,5 @@
 name: cd
-run-name: Action ${{ github.action }} triggered by @${{ github.actor }}
+run-name: Workflow ${{ github.workflow }} triggered by @${{ github.actor }}
 on:
   push:
     branches:
@@ -20,6 +20,10 @@ jobs:
         uses: gradle/actions/setup-gradle@v3.3.2
       - name: Build package
         run: ./gradlew clean build --exclude-task test --exclude-task jar
+        env:
+          INTERNAL_REPOSITORY: ${{ vars.INTERNAL_REPOSITORY }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
       - name: Upload jar
         uses: actions/upload-artifact@v4.3.3
         with:
@@ -39,7 +43,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ github.token }}
       - name: Download jar
         uses: actions/download-artifact@v4.1.7
         with:
@@ -51,3 +55,15 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/raymundoz/librarium-auth:latest
+  deploy:
+    name: deploy
+    runs-on: ubuntu-22.04
+    needs: build-image
+    environment: production
+    steps:
+      - name: Set ssh-agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Update service on prod
+        run: ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} './update-librarium.sh ${{ github.actor }} ${{ secrets.PACKAGES_TOKEN }} ${{ vars.SERVICE_NAME }}'

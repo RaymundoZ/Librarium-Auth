@@ -1,5 +1,5 @@
 name: ci
-run-name: Action ${{ github.action }} triggered by @${{ github.actor }}
+run-name: Workflow ${{ github.workflow }} triggered by @${{ github.actor }}
 on:
   pull_request:
     branches:
@@ -20,3 +20,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v3.3.2
       - name: Run tests
         run: ./gradlew clean test
+        env:
+          INTERNAL_REPOSITORY: ${{ vars.INTERNAL_REPOSITORY }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
